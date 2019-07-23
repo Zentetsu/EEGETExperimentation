@@ -1,10 +1,10 @@
+from tkinter import *
 from screen_recording import ScreenRecording
 from tkinter import filedialog, messagebox
 from eye_tracker import EyeTracker
 from PIL import ImageTk, Image
 from copy import deepcopy
 from pathlib import Path
-from tkinter import *
 import threading
 import time
 import glob
@@ -36,7 +36,7 @@ class Display:
         self.canvas_fig = Canvas(self.windows, width=xFig, height=yFig, background='white')
         self.canvas_fig.pack()
 
-        self.link_et = Button(self.windows, text="Unlink Eye-Tracker", command=self.linkET, width=25)
+        self.link_et = Button(self.windows, text="Link Eye-Tracker", command=self.linkET, width=25)
         self.link_sr = Button(self.windows, text="Enable screen recording", command=self.enableScreenRecording, width=25)
         self.link_pa = Button(self.windows, text="Select object folder", command=self.selectPath, width=25)
         self.link_se = Button(self.windows, text="Start experience", command=self.initExperience, width=25)
@@ -89,6 +89,7 @@ class Display:
                 self.link_et.config(text="Unlink Eye-Tracker")
                 self.read = True
                 self.gaze_focus = self.canvas_fig.create_oval(10-50, 10-50, 10+50, 10+50)
+                self.gaze_focus = self.canvas_test.create_oval(10-50, 10-50, 10+50, 10+50)
                 self.thread_et = threading.Thread(target=self.readGaze)
                 self.thread_et.start()
             else:
@@ -100,6 +101,7 @@ class Display:
             self.eye_tracker.stop()
             self.eye_tracker = None
             self.canvas_fig.delete(self.gaze_focus)
+            self.canvas_test.delete(self.gaze_focus)
             self.link_et.config(text="Link Eye-Tracker")
 
     def enableScreenRecording(self):
@@ -125,7 +127,9 @@ class Display:
                 break
 
             x, y = self.screen_width*(gaze["Right"][0] + gaze["Left"][0])/2, self.screen_height*(gaze["Right"][1] + gaze["Left"][1])/2
-            self.canvas_fig.coords(self.gaze_focus, x-50, y-50, x+50, y+50)
+            
+            self.canvas_fig.coords(self.gaze_focus, x-50, y-50-int(self.info[3]), x+50, y+50-int(self.info[3]))
+            self.canvas_test.coords(self.gaze_focus, x-50, y-50-int(self.info[3]), x+50, y+50-int(self.info[3]))
             
             # print((gaze["Right"][0] + gaze["Left"][0])/2, (gaze["Right"][1] + gaze["Left"][1])/2)
 
@@ -177,9 +181,10 @@ class Display:
         self.canvas_test.itemconfig(self.img_inst, text="")
         self.canvas_test.delete(self.img_show)
         self.focus = self.canvas_test.create_oval(self.screen_width/2-50, self.screen_height/2-50, self.screen_width/2+50, self.screen_height/2+50, fill="black")
-        self.canvas_test.after(500, self.displayImage, path)
+        self.canvas_test.after(1000, self.displayImage, path)
 
     def displayImage(self, path):
+        self.windows.update()
         self.canvas_test.delete(self.focus)
 
         if self.list_ins is not None:
@@ -192,6 +197,7 @@ class Display:
             self.img = ImageTk.PhotoImage(img_temp)
 
             self.img_show = self.canvas_test.create_image(self.screen_width/2, self.screen_height/2, anchor=CENTER, image=self.img)
+            self.canvas_test.tag_lower(self.img_show)
 
         if len(self.list_img) > 1:
             if self.list_img is not None:
@@ -200,7 +206,7 @@ class Display:
             if self.list_ins is not None:
                 self.list_ins.pop(0)
 
-            self.canvas_test.after(100, self.displayImage, path)
+            self.canvas_test.after(500, self.displayImage, path)
         else:
             self.next = True
             self.cur_exp += 1
