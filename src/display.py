@@ -56,7 +56,7 @@ class Display:
 
         self.img_show = self.canvas_test.create_image(self.screen_width/2, self.screen_height/2, anchor=CENTER, image=None)
 
-        self.img_inst = self.canvas_test.create_text(self.screen_width/2, 30, text="")
+        self.img_inst = self.canvas_test.create_text(self.screen_width/2, self.screen_height/2, text="")
 
     def resize(self, event):
         # determine the ratio of old width/height to new width/height
@@ -138,8 +138,8 @@ class Display:
         self.screen_recording.createVideo()
 
     def selectPath(self):
-        self.path_obj = filedialog.askdirectory(parent=self.windows, initialdir= "/", title='Please select a directory')
-        # self.path_obj = "../experiment"
+        # self.path_obj = filedialog.askdirectory(parent=self.windows, initialdir= "/", title='Please select a directory')
+        self.path_obj = "../experiment"
 
         self.list_exp = [Path(i).stem for i in glob.glob(self.path_obj + "/*")]
         self.tot_exp = len([i for i in self.list_exp if "exp" in i])
@@ -179,7 +179,7 @@ class Display:
 
     def displayWaitScreen(self, path):
         self.canvas_test.itemconfig(self.img_inst, text="")
-        self.canvas_test.delete(self.img_show)
+        self.canvas_test.itemconfig(self.img_show, image='')
         self.focus = self.canvas_test.create_oval(self.screen_width/2-50, self.screen_height/2-50, self.screen_width/2+50, self.screen_height/2+50, fill="black")
         self.canvas_test.after(1000, self.displayImage, path)
 
@@ -190,13 +190,16 @@ class Display:
         if self.list_ins is not None:
             with open(path + "/instruction/" + self.list_ins[0] + ".txt", 'r') as file:
                 data = file.read().replace('\n', '')
-                self.canvas_test.itemconfig(self.img_inst, text=data)
+                self.canvas_test.after(500, lambda: self.canvas_test.itemconfig(self.img_inst, text=data))
+                self.canvas_test.after(2000, lambda: self.canvas_test.itemconfig(self.img_inst, text=""))
+                
 
         if self.list_img is not None:
             img_temp = Image.open(path + "/object/" + self.list_img[0] + ".jpg").resize((500, 500), Image.ANTIALIAS)
             self.img = ImageTk.PhotoImage(img_temp)
 
-            self.img_show = self.canvas_test.create_image(self.screen_width/2, self.screen_height/2, anchor=CENTER, image=self.img)
+            self.canvas_test.after(2500, lambda: self.canvas_test.itemconfig(self.img_show, image=self.img))
+            
             self.canvas_test.tag_lower(self.img_show)
 
         if len(self.list_img) > 1:
@@ -206,8 +209,9 @@ class Display:
             if self.list_ins is not None:
                 self.list_ins.pop(0)
 
-            self.canvas_test.after(500, self.displayImage, path)
+            self.canvas_test.after(8000, self.displayImage, path)
         else:
+            self.canvas_test.after(8000, lambda: self.canvas_test.itemconfig(self.img_show, image=''))
             self.next = True
             self.cur_exp += 1
             self.link_se3.config(text="Continue")
