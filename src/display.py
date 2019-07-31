@@ -13,6 +13,7 @@ import glob
 class Display:
     def __init__(self):
         self.next = False
+        self.start = False
         self.cur_exp = None
         self.path_obj = None
         self.eye_tracker = None
@@ -138,8 +139,8 @@ class Display:
         self.screen_recording.createVideo()
 
     def selectPath(self):
-        # self.path_obj = filedialog.askdirectory(parent=self.windows, initialdir= "/", title='Please select a directory')
-        self.path_obj = "../experiment"
+        self.path_obj = filedialog.askdirectory(parent=self.windows, initialdir= "/", title='Please select a directory')
+        # self.path_obj = "../experiment"
 
         self.list_exp = [Path(i).stem for i in glob.glob(self.path_obj + "/*")]
         self.tot_exp = len([i for i in self.list_exp if "exp" in i])
@@ -154,8 +155,10 @@ class Display:
             if self.cur_exp == 0:
                 self.canvas_fig.pack_forget()
                 self.canvas_test.pack()
-
-            self.startExperience(self.list_exp[self.cur_exp])
+            
+            if self.next is True or self.cur_exp == 0 and self.start is False:
+                self.start = True
+                self.startExperience(self.list_exp[self.cur_exp])
 
     def startExperience(self, path):
         list_temp = [Path(i).stem for i in glob.glob(self.path_obj + "/" + path + "/*")]
@@ -195,7 +198,7 @@ class Display:
                 
 
         if self.list_img is not None:
-            img_temp = Image.open(path + "/object/" + self.list_img[0] + ".jpg").resize((500, 500), Image.ANTIALIAS)
+            img_temp = Image.open(path + "/object/" + self.list_img[0] + ".jpg").resize((400, 400), Image.ANTIALIAS)
             self.img = ImageTk.PhotoImage(img_temp)
 
             self.canvas_test.after(2500, lambda: self.canvas_test.itemconfig(self.img_show, image=self.img))
@@ -210,6 +213,8 @@ class Display:
                 self.list_ins.pop(0)
 
             self.canvas_test.after(8000, self.displayImage, path)
+            self.next = False
+            self.link_se3.config(text="Wait")
         else:
             self.canvas_test.after(8000, lambda: self.canvas_test.itemconfig(self.img_show, image=''))
             self.next = True
