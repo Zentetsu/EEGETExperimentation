@@ -129,8 +129,11 @@ class Display:
 
             x, y = self.screen_width*(gaze["Right"][0] + gaze["Left"][0])/2, self.screen_height*(gaze["Right"][1] + gaze["Left"][1])/2
             
-            self.canvas_fig.coords(self.gaze_focus, x-50, y-50-int(self.info[3]), x+50, y+50-int(self.info[3]))
-            self.canvas_test.coords(self.gaze_focus, x-50, y-50-int(self.info[3]), x+50, y+50-int(self.info[3]))
+            try:
+                self.canvas_fig.coords(self.gaze_focus, x-50, y-50-int(self.info[3]), x+50, y+50-int(self.info[3]))
+                self.canvas_test.coords(self.gaze_focus, x-50, y-50-int(self.info[3]), x+50, y+50-int(self.info[3]))
+            except Exception as e:
+                pass
             
             # print((gaze["Right"][0] + gaze["Left"][0])/2, (gaze["Right"][1] + gaze["Left"][1])/2)
 
