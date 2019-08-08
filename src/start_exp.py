@@ -1,4 +1,4 @@
-from display import Display
+from experiment_part import Display
 
 
 if __name__ == "__main__":

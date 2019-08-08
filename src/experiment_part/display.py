@@ -1,7 +1,7 @@
 from tkinter import *
-from screen_recording import ScreenRecording
+from experiment_part.screen_recording import ScreenRecording
+from experiment_part.eye_tracker import EyeTracker
 from tkinter import filedialog, messagebox
-from eye_tracker import EyeTracker
 from PIL import ImageTk, Image
 from copy import deepcopy
 from pathlib import Path
