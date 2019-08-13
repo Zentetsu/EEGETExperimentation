@@ -215,3 +215,6 @@ $RECYCLE.BIN/
 
 experiment/
 record/
+cutting/
+*.ced
+*.lay
